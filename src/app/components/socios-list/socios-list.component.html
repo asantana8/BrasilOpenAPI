@@ -1,0 +1,18 @@
+<div class="card shadow-sm">
+  <div class="card-header bg-white">
+    <h2 class="h5 mb-0">Sócios e Administradores</h2>
+  </div>
+
+  @if (socios().length > 0) {
+    <ul class="list-group list-group-flush">
+      @for (socio of socios(); track $index) {
+        <li class="list-group-item d-flex flex-column flex-sm-row justify-content-sm-between">
+          <span class="fw-semibold">{{ socio.nome_socio }}</span>
+          <span class="text-secondary">{{ socio.qualificacao_socio }}</span>
+        </li>
+      }
+    </ul>
+  } @else {
+    <div class="card-body text-secondary">Nenhum sócio informado para este CNPJ.</div>
+  }
+</div>

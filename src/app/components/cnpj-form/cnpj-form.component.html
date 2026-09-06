@@ -1,0 +1,37 @@
+<form [formGroup]="formulario" (ngSubmit)="onSubmit()" novalidate>
+  <label for="cnpj" class="form-label fw-semibold">CNPJ</label>
+
+  <div class="input-group input-group-lg has-validation">
+    <input
+      id="cnpj"
+      type="text"
+      class="form-control"
+      [class.is-invalid]="cnpjControl.invalid && cnpjControl.touched"
+      formControlName="cnpj"
+      placeholder="00.000.000/0000-00"
+      inputmode="numeric"
+      maxlength="18"
+      autocomplete="off"
+      (input)="onCnpjInput($event)"
+    />
+
+    <button type="submit" class="btn btn-primary" [disabled]="carregando()">
+      @if (carregando()) {
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span class="visually-hidden">Consultando...</span>
+      } @else {
+        Buscar
+      }
+    </button>
+
+    @if (cnpjControl.invalid && cnpjControl.touched) {
+      <div class="invalid-feedback">
+        @if (cnpjControl.errors?.['required']) {
+          CNPJ é obrigatório.
+        } @else if (cnpjControl.errors?.['cnpjInvalido']) {
+          Informe um CNPJ válido.
+        }
+      </div>
+    }
+  </div>
+</form>

@@ -1,0 +1,68 @@
+@let dados = empresa();
+
+<div class="row g-4">
+  <div class="col-12 col-lg-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header bg-white">
+        <h2 class="h5 mb-0">Dados Gerais</h2>
+      </div>
+      <div class="card-body">
+        <h3 class="h4">{{ dados.razao_social }}</h3>
+        @if (dados.nome_fantasia) {
+          <p class="text-secondary mb-3">{{ dados.nome_fantasia }}</p>
+        }
+
+        <dl class="row mb-0">
+          <dt class="col-5 col-sm-4">CNPJ</dt>
+          <dd class="col-7 col-sm-8">{{ dados.cnpj }}</dd>
+
+          <dt class="col-5 col-sm-4">Situação</dt>
+          <dd class="col-7 col-sm-8">
+            <span class="badge" [class]="situacaoClasse">{{ dados.descricao_situacao_cadastral }}</span>
+          </dd>
+
+          <dt class="col-5 col-sm-4">Esfera Administrativa <span class="text-secondary fw-normal">(estimada)</span></dt>
+          <dd class="col-7 col-sm-8">
+            <span class="badge" [class]="esferaClasse">{{ esfera }}</span>
+          </dd>
+
+          <dt class="col-5 col-sm-4">Atividade</dt>
+          <dd class="col-7 col-sm-8">{{ dados.cnae_fiscal_descricao }}</dd>
+
+          @if (dados.ddd_telefone_1) {
+            <dt class="col-5 col-sm-4">Telefone</dt>
+            <dd class="col-7 col-sm-8">{{ dados.ddd_telefone_1 }}</dd>
+          }
+
+          @if (dados.ddd_telefone_2) {
+            <dt class="col-5 col-sm-4">Telefone 2</dt>
+            <dd class="col-7 col-sm-8">{{ dados.ddd_telefone_2 }}</dd>
+          }
+
+          @if (dados.email) {
+            <dt class="col-5 col-sm-4">E-mail</dt>
+            <dd class="col-7 col-sm-8 text-break">{{ dados.email }}</dd>
+          }
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card h-100 shadow-sm">
+      <div class="card-header bg-white">
+        <h2 class="h5 mb-0">Endereço</h2>
+      </div>
+      <div class="card-body">
+        <p class="mb-2">{{ enderecoCompleto }}</p>
+        <dl class="row mb-0">
+          <dt class="col-5 col-sm-4">Município</dt>
+          <dd class="col-7 col-sm-8">{{ dados.municipio }} / {{ dados.uf }}</dd>
+
+          <dt class="col-5 col-sm-4">CEP</dt>
+          <dd class="col-7 col-sm-8">{{ dados.cep }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>

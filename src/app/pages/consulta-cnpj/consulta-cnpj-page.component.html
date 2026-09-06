@@ -1,0 +1,27 @@
+<div class="container py-4 py-md-5">
+  <header class="text-center mb-4">
+    <h1 class="h2 fw-bold">Consulta de CNPJ</h1>
+    <p class="text-secondary">Consulte dados cadastrais de empresas diretamente na Receita Federal via BrasilAPI.</p>
+  </header>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <app-cnpj-form [carregando]="carregando()" (buscar)="onBuscar($event)" />
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <app-loading />
+  }
+
+  @if (erro(); as erroAtual) {
+    <app-error-message [mensagem]="erroAtual.mensagem" [tipo]="erroAtual.tipo" />
+  }
+
+  @if (empresa(); as empresaEncontrada) {
+    <div class="d-flex flex-column gap-4">
+      <app-empresa-card [empresa]="empresaEncontrada" />
+      <app-socios-list [socios]="empresaEncontrada.qsa" />
+    </div>
+  }
+</div>

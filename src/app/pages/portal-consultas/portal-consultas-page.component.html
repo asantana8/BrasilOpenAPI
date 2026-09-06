@@ -1,0 +1,58 @@
+<main class="portal-shell">
+  <section class="hero container-fluid px-4 px-lg-5">
+    <div class="hero-content">
+      <p class="eyebrow">BrasilAPI · dados públicos em um só lugar</p>
+      <h1>Mapa de consultas<br /><span>do Brasil</span></h1>
+      <p class="hero-copy">Encontre endereços, explore municípios e planeje o calendário nacional com dados abertos.</p>
+    </div>
+    <div class="hero-stamp" aria-hidden="true"><span>03</span><small>fontes<br />públicas</small></div>
+  </section>
+
+  <section class="container-fluid px-4 px-lg-5 content-grid">
+    @if (erro(); as mensagem) {
+      <div class="alert alert-danger alert-dismissible fade show global-alert" role="alert">
+        {{ mensagem.mensagem }}
+        <button type="button" class="btn-close" aria-label="Fechar" (click)="erro.set(null)"></button>
+      </div>
+    }
+
+    <article class="query-panel cep-panel">
+      <div class="panel-heading"><span class="panel-index">01</span><div><p class="panel-kicker">Localização</p><h2>Descobrir um endereço</h2></div></div>
+      <p class="panel-description">Digite um CEP e veja os detalhes do logradouro, com coordenadas quando disponíveis.</p>
+      <form [formGroup]="cepForm" (ngSubmit)="consultarCep()" class="query-form">
+        <label for="cep">CEP</label>
+        <div class="input-action"><input id="cep" formControlName="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" /><button class="btn btn-dark" type="submit">Buscar <span aria-hidden="true">↗</span></button></div>
+        @if (cepForm.controls.cep.touched && cepForm.controls.cep.invalid) { <small class="field-error">Informe um CEP com 8 dígitos.</small> }
+      </form>
+      @if (carregando() === 'cep') { <div class="loading-line">Consultando endereço...</div> }
+      @if (cep(); as endereco) {
+        <div class="result-address"><div class="address-pin">⌖</div><div><strong>{{ endereco.street || 'Logradouro não informado' }}</strong><span>{{ endereco.neighborhood }} · {{ endereco.city }}/{{ endereco.state }}</span><small>{{ endereco.cep }} @if (endereco.latitude && endereco.longitude) { · {{ endereco.latitude }}, {{ endereco.longitude }} }</small></div></div>
+      }
+    </article>
+
+    <article class="query-panel ibge-panel">
+      <div class="panel-heading"><span class="panel-index">02</span><div><p class="panel-kicker">Território</p><h2>Explorar municípios</h2></div></div>
+      <p class="panel-description">Escolha uma UF para navegar pela lista oficial de municípios do IBGE.</p>
+      <form [formGroup]="ibgeForm" (ngSubmit)="consultarMunicipios()" class="query-form">
+        <label for="uf">Unidade federativa</label>
+        <div class="input-action"><input id="uf" formControlName="uf" placeholder="PE" maxlength="2" /><button class="btn btn-dark" type="submit">Carregar <span aria-hidden="true">↗</span></button></div>
+      </form>
+      @if (municipios().length) {
+        <div class="list-toolbar"><strong>{{ municipiosFiltrados().length }} municípios</strong><input formControlName="busca" (input)="atualizarBuscaMunicipio()" placeholder="Filtrar por nome..." aria-label="Filtrar municípios" /></div>
+        <div class="municipio-list">@for (municipio of municipiosFiltrados(); track municipio.codigo_ibge) { <div class="municipio-row"><span>{{ municipio.nome }}</span><code>{{ municipio.codigo_ibge }}</code></div> }</div>
+      } @else if (carregando() === 'ibge') { <div class="loading-line">Buscando municípios...</div> } @else { <div class="empty-state">A lista de municípios aparecerá aqui.</div> }
+    </article>
+
+    <article class="query-panel feriados-panel">
+      <div class="panel-heading"><span class="panel-index">03</span><div><p class="panel-kicker">Calendário</p><h2>Planejar o ano</h2></div></div>
+      <p class="panel-description">Consulte os feriados nacionais e encontre rapidamente a próxima data importante.</p>
+      <form [formGroup]="feriadosForm" (ngSubmit)="consultarFeriados()" class="query-form year-form"><label for="ano">Ano</label><div class="input-action"><input id="ano" type="number" formControlName="ano" min="1900" max="2100" /><button class="btn btn-dark" type="submit">Ver calendário <span aria-hidden="true">↗</span></button></div></form>
+      @if (feriados().length) {
+        @if (proximoFeriado(); as proximo) { <div class="next-holiday"><span>PRÓXIMO FERIADO</span><strong>{{ proximo.name }}</strong><b>{{ formatarData(proximo.date) }}</b></div> }
+        <div class="holiday-list">@for (feriado of feriados(); track feriado.date + feriado.name) { <div class="holiday-row"><time>{{ formatarData(feriado.date) }}</time><span><strong>{{ feriado.name }}</strong><small>{{ rotuloTipo(feriado.type) }}</small></span></div> }</div>
+      } @else if (carregando() === 'feriados') { <div class="loading-line">Montando calendário...</div> } @else { <div class="empty-state">Seu calendário de feriados aparecerá aqui.</div> }
+    </article>
+  </section>
+
+  <footer class="container-fluid px-4 px-lg-5 portal-footer"><span>Dados fornecidos pela BrasilAPI</span><a routerLink="/cnpj">Consulta empresarial <span aria-hidden="true">↗</span></a></footer>
+</main>

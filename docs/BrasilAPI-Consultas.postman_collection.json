@@ -1,0 +1,198 @@
+{
+  "info": {
+    "_postman_id": "a5f3c67e-6a41-4ce2-brazil-api-mvp2",
+    "name": "BrasilAPI - Consultas MVP2",
+    "description": "Colecao para testar os endpoints usados pelo portal de CEP, municipios, feriados e CNPJ.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://brasilapi.com.br/api",
+      "type": "string"
+    },
+    {
+      "key": "cep",
+      "value": "01001000",
+      "type": "string"
+    },
+    {
+      "key": "uf",
+      "value": "PE",
+      "type": "string"
+    },
+    {
+      "key": "ano",
+      "value": "2026",
+      "type": "string"
+    },
+    {
+      "key": "cnpj",
+      "value": "11444777000161",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "CEP",
+      "item": [
+        {
+          "name": "Consultar endereco por CEP",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cep/v2/{{cep}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cep",
+                "v2",
+                "{{cep}}"
+              ]
+            },
+            "description": "Consulta endereco, bairro, cidade, UF e coordenadas do CEP informado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Resposta HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Retorna um CEP', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('cep');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IBGE",
+      "item": [
+        {
+          "name": "Listar municipios por UF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ibge/municipios/v1/{{uf}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ibge",
+                "municipios",
+                "v1",
+                "{{uf}}"
+              ]
+            },
+            "description": "Lista os municipios da unidade federativa informada."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Resposta HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Retorna uma lista de municipios', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Feriados",
+      "item": [
+        {
+          "name": "Consultar feriados nacionais por ano",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/feriados/v1/{{ano}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "feriados",
+                "v1",
+                "{{ano}}"
+              ]
+            },
+            "description": "Consulta os feriados nacionais do ano informado."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Resposta HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Retorna uma lista de feriados', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CNPJ",
+      "item": [
+        {
+          "name": "Consultar empresa por CNPJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/cnpj/v1/{{cnpj}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cnpj",
+                "v1",
+                "{{cnpj}}"
+              ]
+            },
+            "description": "Consulta os dados cadastrais de uma empresa por CNPJ."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Resposta HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Retorna o CNPJ consultado', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('cnpj');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
