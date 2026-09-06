@@ -7,13 +7,14 @@ import { CepModel } from '../../models/cep.model';
 import { ConsultaApiError } from '../../models/consulta-api-error.model';
 import { Feriado } from '../../models/feriado.model';
 import { Municipio } from '../../models/municipio.model';
+import { ConsultaCnpjPageComponent } from '../consulta-cnpj/consulta-cnpj-page.component';
 import { CepService } from '../../services/cep.service';
 import { FeriadosService } from '../../services/feriados.service';
 import { IbgeService } from '../../services/ibge.service';
 
 @Component({
   selector: 'app-portal-consultas-page',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ConsultaCnpjPageComponent],
   templateUrl: './portal-consultas-page.component.html',
   styleUrl: './portal-consultas-page.component.scss'
 })

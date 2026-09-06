@@ -8,6 +8,17 @@
     <div class="hero-stamp" aria-hidden="true"><span>03</span><small>fontes<br />públicas</small></div>
   </section>
 
+  <section class="cnpj-feature container-fluid px-4 px-lg-5" aria-labelledby="cnpj-feature-title">
+    <div class="cnpj-feature-heading">
+      <div>
+        <p class="eyebrow">Consulta principal</p>
+        <h2 id="cnpj-feature-title">Consulta Geral a CNPJ</h2>
+      </div>
+      <span class="cnpj-feature-index">01</span>
+    </div>
+    <app-consulta-cnpj-page />
+  </section>
+
   <section class="container-fluid px-4 px-lg-5 content-grid">
     @if (erro(); as mensagem) {
       <div class="alert alert-danger alert-dismissible fade show global-alert" role="alert">
