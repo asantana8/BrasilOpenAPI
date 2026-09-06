@@ -24,7 +24,7 @@ export class PortalConsultasPageComponent {
   private readonly feriadosService = inject(FeriadosService);
 
   protected readonly cepForm = new FormGroup({
-    cep: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^\\d{5}-?\\d{3}$/)] })
+    cep: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^\d{5}-?\d{3}$/)] })
   });
   protected readonly ibgeForm = new FormGroup({
     uf: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/^[A-Za-z]{2}$/)] }),
@@ -41,8 +41,8 @@ export class PortalConsultasPageComponent {
   protected readonly erro = signal<ConsultaApiError | null>(null);
   protected readonly buscaMunicipio = signal('');
   protected readonly municipiosFiltrados = computed(() => {
-    const termo = this.buscaMunicipio().trim().toLocaleLowerCase();
-    return this.municipios().filter((municipio) => municipio.nome.toLocaleLowerCase().includes(termo));
+    const termo = this.normalizarTexto(this.buscaMunicipio());
+    return this.municipios().filter((municipio) => this.normalizarTexto(municipio.nome).includes(termo));
   });
   protected readonly proximoFeriado = computed(() => {
     const hoje = new Date().toISOString().slice(0, 10);
@@ -74,8 +74,9 @@ export class PortalConsultasPageComponent {
     this.executar('feriados', () => this.feriadosService.consultar(this.feriadosForm.controls.ano.value), (resultado) => this.feriados.set(resultado));
   }
 
-  protected atualizarBuscaMunicipio(): void {
-    this.buscaMunicipio.set(this.ibgeForm.controls.busca.value);
+  protected atualizarBuscaMunicipio(evento: Event): void {
+    const campo = evento.target as HTMLInputElement;
+    this.buscaMunicipio.set(campo.value);
   }
 
   protected formatarData(data: string): string {
@@ -85,6 +86,14 @@ export class PortalConsultasPageComponent {
 
   protected rotuloTipo(tipo: string): string {
     return tipo === 'national' ? 'Nacional' : tipo === 'state' ? 'Estadual' : tipo === 'municipal' ? 'Municipal' : tipo;
+  }
+
+  private normalizarTexto(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLocaleLowerCase();
   }
 
   private executar<T>(modulo: string, consulta: () => import('rxjs').Observable<T>, sucesso: (resultado: T) => void): void {

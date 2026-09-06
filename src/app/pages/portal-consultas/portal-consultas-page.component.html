@@ -5,10 +5,12 @@
       <h1>Mapa de consultas<br /><span>do Brasil</span></h1>
       <p class="hero-copy">Encontre endereços, explore municípios e planeje o calendário nacional com dados abertos.</p>
     </div>
+    <div class="hero-art" aria-hidden="true"><img src="favicon.svg?v=2" alt="" /></div>
     <div class="hero-stamp" aria-hidden="true"><span>03</span><small>fontes<br />públicas</small></div>
   </section>
 
-  <section class="cnpj-feature container-fluid px-4 px-lg-5" aria-labelledby="cnpj-feature-title">
+  <div class="portal-scroll">
+    <section class="cnpj-feature container-fluid px-4 px-lg-5" aria-labelledby="cnpj-feature-title">
     <div class="cnpj-feature-heading">
       <div>
         <p class="eyebrow">Consulta principal</p>
@@ -17,9 +19,9 @@
       <span class="cnpj-feature-index">01</span>
     </div>
     <app-consulta-cnpj-page />
-  </section>
+    </section>
 
-  <section class="container-fluid px-4 px-lg-5 content-grid">
+    <section class="container-fluid px-4 px-lg-5 content-grid">
     @if (erro(); as mensagem) {
       <div class="alert alert-danger alert-dismissible fade show global-alert" role="alert">
         {{ mensagem.mensagem }}
@@ -49,8 +51,9 @@
         <div class="input-action"><input id="uf" formControlName="uf" placeholder="PE" maxlength="2" /><button class="btn btn-dark" type="submit">Carregar <span aria-hidden="true">↗</span></button></div>
       </form>
       @if (municipios().length) {
-        <div class="list-toolbar"><strong>{{ municipiosFiltrados().length }} municípios</strong><input formControlName="busca" (input)="atualizarBuscaMunicipio()" placeholder="Filtrar por nome..." aria-label="Filtrar municípios" /></div>
-        <div class="municipio-list">@for (municipio of municipiosFiltrados(); track municipio.codigo_ibge) { <div class="municipio-row"><span>{{ municipio.nome }}</span><code>{{ municipio.codigo_ibge }}</code></div> }</div>
+        <div class="list-toolbar"><strong>{{ municipiosFiltrados().length }} municípios</strong><input formControlName="busca" (input)="atualizarBuscaMunicipio($event)" placeholder="Digite o nome da cidade..." aria-label="Buscar cidade por nome" autocomplete="off" /></div>
+        <div class="municipio-list-heading" aria-hidden="true"><span>Código IBGE</span><span>Nome do município</span></div>
+        <div class="municipio-list">@for (municipio of municipiosFiltrados(); track municipio.codigo_ibge) { <div class="municipio-row"><code>{{ municipio.codigo_ibge }}</code><span><strong>{{ municipio.nome }}</strong><small>Município</small></span></div> }</div>
       } @else if (carregando() === 'ibge') { <div class="loading-line">Buscando municípios...</div> } @else { <div class="empty-state">A lista de municípios aparecerá aqui.</div> }
     </article>
 
@@ -63,7 +66,27 @@
         <div class="holiday-list">@for (feriado of feriados(); track feriado.date + feriado.name) { <div class="holiday-row"><time>{{ formatarData(feriado.date) }}</time><span><strong>{{ feriado.name }}</strong><small>{{ rotuloTipo(feriado.type) }}</small></span></div> }</div>
       } @else if (carregando() === 'feriados') { <div class="loading-line">Montando calendário...</div> } @else { <div class="empty-state">Seu calendário de feriados aparecerá aqui.</div> }
     </article>
-  </section>
+    </section>
+  </div>
 
-  <footer class="container-fluid px-4 px-lg-5 portal-footer"><span>Dados fornecidos pela BrasilAPI</span><a routerLink="/cnpj">Consulta empresarial <span aria-hidden="true">↗</span></a></footer>
+  <footer class="portal-footer" aria-label="Informações de autoria e contato">
+    <div class="portal-footer-inner container-fluid px-4 px-lg-5">
+      <div class="author-block">
+        <span class="author-mark" aria-hidden="true">B</span>
+        <div>
+          <p class="footer-kicker">Projeto e desenvolvimento</p>
+          <strong>Adriano Santana</strong>
+          <span class="author-role">Portal BrasilAPI · Consultas públicas</span>
+        </div>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-kicker">Entre em contato</span>
+        <a href="mailto:t_acsantana@trf5.jus.br">t_acsantana@trf5.jus.br <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="footer-links">
+        <span>Dados fornecidos pela BrasilAPI</span>
+        <a routerLink="/cnpj">Consulta empresarial <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </footer>
 </main>

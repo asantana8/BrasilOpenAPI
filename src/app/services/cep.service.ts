@@ -11,7 +11,7 @@ export class CepService {
   private readonly http = inject(HttpClient);
 
   consultar(cep: string): Observable<CepModel> {
-    return this.http.get<CepModel>(`${environment.apiBaseUrl}/cep/v2/${cep.replace(/\\D/g, '')}`).pipe(
+    return this.http.get<CepModel>(`${environment.apiBaseUrl}/cep/v2/${cep.replace(/\D/g, '')}`).pipe(
       timeout(15_000),
       catchError((erro: unknown) => throwError(() => this.mapearErro(erro, 'CEP')))
     );
