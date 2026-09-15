@@ -1,0 +1,436 @@
+<main class="sgt-shell">
+  <!-- Hero Section -->
+  <section class="hero container-fluid px-4 px-lg-5">
+    <div class="hero-content">
+      <p class="eyebrow">SGT / CNJ · Tabelas Processuais Unificadas</p>
+      <h1>Consulta Unificada<br /><span>do Judiciário</span></h1>
+      <p class="hero-copy">
+        Pesquise classes, assuntos e movimentos processuais padronizados pelo Conselho Nacional de Justiça com acesso direto à base de dados estruturada.
+      </p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <span class="hero-icon">⚖</span>
+    </div>
+    <div class="hero-stamp" aria-hidden="true">
+      <span>TPU</span>
+      <small>Conselho<br />Nacional de Justiça</small>
+    </div>
+  </section>
+
+  <!-- Navigation bar between pages -->
+  <app-modulos-nav>
+    <button
+      type="button"
+      class="btn-health"
+      (click)="verificarSaude()"
+      title="Verificar status da conexão com a API SGT-CNJ"
+    >
+      <span class="status-dot" [class.online]="health()?.banco_conectado"></span>
+      Status API
+    </button>
+    <button
+      type="button"
+      class="btn-sync"
+      (click)="dispararSincronizacao()"
+      [disabled]="sincronizando()"
+      title="Sincronizar base local com o SOAP oficial do CNJ"
+    >
+      @if (sincronizando()) {
+        <span class="spinner-inline"></span> Sincronizando...
+      } @else {
+        ↻ Sincronizar CNJ
+      }
+    </button>
+  </app-modulos-nav>
+
+  <div class="portal-scroll">
+    <!-- Alerts / Feedbacks -->
+    <div class="container-fluid px-4 px-lg-5 pt-3">
+      @if (feedbackSucesso(); as msg) {
+        <div class="alert alert-success alert-dismissible fade show feedback-alert" role="alert">
+          <strong>Sucesso:</strong> {{ msg }}
+          <button type="button" class="btn-close" aria-label="Fechar" (click)="feedbackSucesso.set(null)"></button>
+        </div>
+      }
+
+      @if (erro(); as err) {
+        <div class="alert alert-danger alert-dismissible fade show feedback-alert" role="alert">
+          <strong>Atenção:</strong> {{ err.mensagem }}
+          <button type="button" class="btn-close" aria-label="Fechar" (click)="erro.set(null)"></button>
+        </div>
+      }
+    </div>
+
+    <!-- Main Query Section -->
+    <section class="container-fluid px-4 px-lg-5 search-section" aria-labelledby="sgt-search-title">
+      <article class="query-panel main-panel">
+        <div class="panel-heading">
+          <span class="panel-index">01</span>
+          <div>
+            <p class="panel-kicker">Parâmetros de Pesquisa</p>
+            <h2 id="sgt-search-title">Consultar Tabelas Unificadas</h2>
+          </div>
+        </div>
+
+        <p class="panel-description">
+          Selecione o tipo de tabela processual (Classes, Assuntos ou Movimentos) e informe um termo de busca ou código numérico do CNJ.
+        </p>
+
+        <!-- Tipo Selector Tabs -->
+        <div class="tipo-selector-tabs" role="tablist" aria-label="Tipo de tabela processual">
+          <button
+            type="button"
+            role="tab"
+            class="tab-btn"
+            [class.active]="buscaForm.controls.tipo.value === 'a'"
+            [attr.aria-selected]="buscaForm.controls.tipo.value === 'a'"
+            (click)="selecionarTipo('a')"
+          >
+            <span class="tab-badge">A</span>
+            <span class="tab-label">Assuntos Processuais</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="tab-btn"
+            [class.active]="buscaForm.controls.tipo.value === 'c'"
+            [attr.aria-selected]="buscaForm.controls.tipo.value === 'c'"
+            (click)="selecionarTipo('c')"
+          >
+            <span class="tab-badge">C</span>
+            <span class="tab-label">Classes Processuais</span>
+          </button>
+          
+          <button
+            type="button"
+            role="tab"
+            class="tab-btn"
+            [class.active]="buscaForm.controls.tipo.value === 'm'"
+            [attr.aria-selected]="buscaForm.controls.tipo.value === 'm'"
+            (click)="selecionarTipo('m')"
+          >
+            <span class="tab-badge">M</span>
+            <span class="tab-label">Movimentos Processuais</span>
+          </button>
+        </div>
+
+        <!-- Search Form -->
+        <form [formGroup]="buscaForm" (ngSubmit)="pesquisar()" class="sgt-form mt-4">
+          <div class="form-grid">
+            <!-- Descrição / Termo -->
+            <div class="form-field-main">
+              <label for="descricao">Nome / Descrição da {{ rotulosTipo[buscaForm.controls.tipo.value].tag }}</label>
+              <input
+                id="descricao"
+                type="text"
+                formControlName="descricao"
+                placeholder="Ex.: Procedimento Comum, Dano Moral, Citação..."
+                autocomplete="off"
+              />
+            </div>
+
+            <!-- Código -->
+            <div class="form-field-code">
+              <label for="codigo">Código Exato (Opcional)</label>
+              <input
+                id="codigo"
+                type="number"
+                formControlName="codigo"
+                placeholder="Ex.: 7, 1116..."
+                inputmode="numeric"
+              />
+            </div>
+
+            <!-- Situação -->
+            <div class="form-field-situacao">
+              <label for="situacao">Situação</label>
+              <select id="situacao" formControlName="situacao">
+                <option value="TODOS">Todas as situações</option>
+                <option value="A">Somente Ativos (A)</option>
+                <option value="I">Somente Inativos (I)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quick Examples -->
+          <div class="quick-examples mt-3">
+            <span class="quick-label">Sugestões rápidas:</span>
+            @if (buscaForm.controls.tipo.value === 'c') {
+              <button type="button" class="chip" (click)="aplicarExemplo('Procedimento')">Procedimento</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Execução')">Execução</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Mandado de Segurança')">Mandado de Segurança</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Juizado')">Juizados</button>
+            } @else if (buscaForm.controls.tipo.value === 'a') {
+              <button type="button" class="chip" (click)="aplicarExemplo('Dano Moral')">Dano Moral</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Contratos')">Contratos</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Benefício')">Benefício Previdenciário</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Tributário')">Tributário</button>
+            } @else {
+              <button type="button" class="chip" (click)="aplicarExemplo('Citação')">Citação</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Despacho')">Despacho</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Sentença')">Sentença</button>
+              <button type="button" class="chip" (click)="aplicarExemplo('Audiência')">Audiência</button>
+            }
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions mt-4">
+            <button class="btn btn-dark btn-search" type="submit" [disabled]="carregando()">
+              @if (carregando()) {
+                <span class="spinner-inline"></span> Consultando SGT...
+              } @else {
+                Pesquisar no SGT <span aria-hidden="true">↗</span>
+              }
+            </button>
+            <button class="btn btn-outline-secondary" type="button" (click)="limpar()">
+              Limpar Filtros
+            </button>
+          </div>
+        </form>
+      </article>
+    </section>
+
+    <!-- Results Section -->
+    <section class="container-fluid px-4 px-lg-5 results-section" aria-live="polite">
+      @if (carregando()) {
+        <div class="loading-state">
+          <div class="loading-line">Carregando itens das Tabelas Processuais Unificadas...</div>
+        </div>
+      } @else if (consultou()) {
+        @if (itensFiltrados().length > 0) {
+          <!-- Stats Bar -->
+          <div class="results-stats-bar">
+            <div class="stats-info">
+              <span class="stats-count">{{ itensFiltrados().length }}</span>
+              <span class="stats-text">
+                {{ itensFiltrados().length === 1 ? 'item encontrado' : 'itens encontrados' }} em
+                <strong>{{ rotulosTipo[buscaForm.controls.tipo.value].plural }}</strong>
+              </span>
+            </div>
+            <div class="stats-badges">
+              <span class="badge-active">{{ contagemAtivos() }} Ativos</span>
+              @if (contagemInativos() > 0) {
+                <span class="badge-inactive">{{ contagemInativos() }} Inativos</span>
+              }
+            </div>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="items-grid">
+            @for (item of itensFiltrados(); track item.codigo) {
+              <article class="sgt-card" [class.inactive]="item.tipo_situacao === 'I'">
+                <div class="card-top">
+                  <div class="code-badge" (click)="copiarCodigo(item.codigo)" title="Clique para copiar o código">
+                    <code>#{{ item.codigo }}</code>
+                    <span class="copy-hint">{{ codigoCopiado() === item.codigo ? 'Copiado!' : 'Copiar' }}</span>
+                  </div>
+                  <div class="status-tags">
+                    @if (item.sigla) {
+                      <span class="tag-sigla">{{ item.sigla }}</span>
+                    }
+                    <span class="tag-situacao" [class.ativo]="item.tipo_situacao === 'A'">
+                      {{ item.tipo_situacao === 'A' ? 'Ativo' : 'Inativo' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="card-body-content">
+                  <h3 class="item-title">{{ item.nome }}</h3>
+
+                  @if (item.codigo_pai) {
+                    <p class="parent-info">
+                      <span class="parent-label">Hierarquia (Pai):</span>
+                      <code>#{{ item.codigo_pai }}</code>
+                    </p>
+                  }
+
+                  @if (item.dispositivo_legal || item.artigo) {
+                    <div class="legal-info">
+                      @if (item.dispositivo_legal) {
+                        <span class="legal-device">⚖ {{ item.dispositivo_legal }}</span>
+                      }
+                      @if (item.artigo) {
+                        <span class="legal-article">Art. {{ item.artigo }}</span>
+                      }
+                    </div>
+                  }
+
+                  @if (item.glossario) {
+                    <p class="item-glossario-excerpt">
+                      {{ item.glossario }}
+                    </p>
+                  } @else if (item.descricao) {
+                    <p class="item-glossario-excerpt">
+                      {{ item.descricao }}
+                    </p>
+                  }
+                </div>
+
+                <div class="card-footer-meta">
+                  <div class="meta-dates">
+                    @if (item.dt_publicacao) {
+                      <span>Publ.: {{ formatarData(item.dt_publicacao) }}</span>
+                    }
+                    @if (item.dt_alteracao) {
+                      <span>Alt.: {{ formatarData(item.dt_alteracao) }}</span>
+                    }
+                  </div>
+                  <button type="button" class="btn-detail" (click)="abrirDetalhes(item)">
+                    Ver Detalhes <span>↗</span>
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <!-- Empty State -->
+          <div class="empty-results-box">
+            <span class="empty-icon" aria-hidden="true">🔍</span>
+            <h3>Nenhum registro encontrado</h3>
+            <p>
+              Não localizamos nenhuma {{ rotulosTipo[buscaForm.controls.tipo.value].singular.toLowerCase() }} com os filtros fornecidos. Tente alterar os termos da busca ou limpar os filtros.
+            </p>
+            <button type="button" class="btn btn-dark mt-3" (click)="limpar()">
+              Redefinir Filtros
+            </button>
+          </div>
+        }
+      } @else {
+        <!-- Initial Guidance State -->
+        <div class="guidance-box">
+          <div class="guidance-icon" aria-hidden="true">🏛</div>
+          <h3>Consulta às Tabelas do Conselho Nacional de Justiça</h3>
+          <p>
+            As Tabelas Processuais Unificadas (TPU) padronizam a terminologia de classes, assuntos e movimentos processuais em todos os órgãos do Poder Judiciário brasileiro.
+          </p>
+          <div class="guidance-cards">
+            <div class="guidance-card" (click)="selecionarTipo('c'); aplicarExemplo('Procedimento')">
+              <span class="g-badge">01</span>
+              <h4>Classes</h4>
+              <p>Identificam o procedimento ou rito aplicável ao processo judicial.</p>
+            </div>
+            <div class="guidance-card" (click)="selecionarTipo('a'); aplicarExemplo('Dano Moral')">
+              <span class="g-badge">02</span>
+              <h4>Assuntos</h4>
+              <p>Definem a matéria de direito controvertida e o dispositivo legal da lide.</p>
+            </div>
+            <div class="guidance-card" (click)="selecionarTipo('m'); aplicarExemplo('Citação')">
+              <span class="g-badge">03</span>
+              <h4>Movimentos</h4>
+              <p>Registram a evolução e os atos processuais praticados nos autos.</p>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- Item Detail Modal / Overlay -->
+  @if (itemSelecionado(); as item) {
+    <div class="modal-overlay" (click)="fecharDetalhes()">
+      <div class="modal-dialog-custom" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <div class="modal-header-custom">
+          <div>
+            <span class="modal-eyebrow">{{ rotulosTipo[buscaForm.controls.tipo.value].singular }}</span>
+            <h2 class="modal-title">{{ item.nome }}</h2>
+          </div>
+          <button type="button" class="btn-close-custom" aria-label="Fechar" (click)="fecharDetalhes()">✕</button>
+        </div>
+
+        <div class="modal-body-custom">
+          <div class="modal-badges-row">
+            <div class="code-pill">
+              Código CNPJ/SGT: <strong>#{{ item.codigo }}</strong>
+            </div>
+            @if (item.sigla) {
+              <div class="sigla-pill">
+                Sigla: <strong>{{ item.sigla }}</strong>
+              </div>
+            }
+            <div class="status-pill" [class.ativo]="item.tipo_situacao === 'A'">
+              Situação: <strong>{{ item.tipo_situacao === 'A' ? 'Ativo' : 'Inativo' }}</strong>
+            </div>
+            @if (item.codigo_pai) {
+              <div class="parent-pill">
+                Item Pai: <strong>#{{ item.codigo_pai }}</strong>
+              </div>
+            }
+          </div>
+
+          @if (item.dispositivo_legal || item.artigo) {
+            <div class="modal-section-card">
+              <h4>Fundamentação Legal</h4>
+              <div class="legal-details">
+                @if (item.dispositivo_legal) {
+                  <p><strong>Dispositivo Legal:</strong> {{ item.dispositivo_legal }}</p>
+                }
+                @if (item.artigo) {
+                  <p><strong>Artigo:</strong> {{ item.artigo }}</p>
+                }
+              </div>
+            </div>
+          }
+
+          @if (item.glossario) {
+            <div class="modal-section-card">
+              <h4>Glossário e Definição Oficial</h4>
+              <p class="modal-glossario-text">{{ item.glossario }}</p>
+            </div>
+          } @else if (item.descricao) {
+            <div class="modal-section-card">
+              <h4>Descrição</h4>
+              <p class="modal-glossario-text">{{ item.descricao }}</p>
+            </div>
+          }
+
+          <div class="modal-section-card">
+            <h4>Histórico e Temporalidade</h4>
+            <div class="history-grid">
+              <div>
+                <small>Data de Publicação</small>
+                <span>{{ formatarData(item.dt_publicacao) }}</span>
+              </div>
+              <div>
+                <small>Última Alteração</small>
+                <span>{{ formatarData(item.dt_alteracao) }}</span>
+              </div>
+              @if (item.dt_inativacao) {
+                <div>
+                  <small>Data de Inativação</small>
+                  <span class="text-danger">{{ formatarData(item.dt_inativacao) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-custom">
+          <button type="button" class="btn btn-outline-dark" (click)="copiarCodigo(item.codigo)">
+            {{ codigoCopiado() === item.codigo ? 'Código Copiado!' : 'Copiar Código' }}
+          </button>
+          <button type="button" class="btn btn-dark" (click)="fecharDetalhes()">
+            Fechar Detalhes
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Footer -->
+  <footer class="portal-footer" aria-label="Informações de autoria e contato">
+    <div class="portal-footer-inner container-fluid px-4 px-lg-5">
+      <div class="author-block">
+        <span class="author-mark" aria-hidden="true">S</span>
+        <div>
+          <p class="footer-kicker">Projeto e desenvolvimento</p>
+          <strong>Adriano Santana</strong>
+          <span class="author-role">Microserviço SGT/CNJ · Tabelas Processuais Unificadas</span>
+        </div>
+      </div>
+      <div class="footer-contact">
+        <span class="footer-kicker">Entre em contato</span>
+        <a href="mailto:t_acsantana@trf5.jus.br">t_acsantana@trf5.jus.br <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </footer>
+</main>

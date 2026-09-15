@@ -1,5 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 
+import { ModulosNavComponent } from '../../components/modulos-nav/modulos-nav.component';
 import { CnpjFormComponent } from '../../components/cnpj-form/cnpj-form.component';
 import { EmpresaCardComponent } from '../../components/empresa-card/empresa-card.component';
 import { ErrorMessageComponent } from '../../components/error-message/error-message.component';
@@ -11,12 +12,22 @@ import { BrasilApiService } from '../../services/brasil-api.service';
 
 @Component({
   selector: 'app-consulta-cnpj-page',
-  imports: [CnpjFormComponent, EmpresaCardComponent, SociosListComponent, LoadingComponent, ErrorMessageComponent],
+  imports: [
+    ModulosNavComponent,
+    CnpjFormComponent,
+    EmpresaCardComponent,
+    SociosListComponent,
+    LoadingComponent,
+    ErrorMessageComponent
+  ],
   templateUrl: './consulta-cnpj-page.component.html',
   styleUrl: './consulta-cnpj-page.component.scss'
 })
 export class ConsultaCnpjPageComponent {
   private readonly brasilApiService = inject(BrasilApiService);
+
+  /** Quando embutido dentro de outra página (ex.: Portal), o menu de módulos não é exibido aqui. */
+  readonly mostrarMenu = input(true);
 
   protected readonly carregando = signal(false);
   protected readonly empresa = signal<Empresa | null>(null);

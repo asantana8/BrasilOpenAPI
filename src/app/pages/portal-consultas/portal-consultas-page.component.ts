@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
+import { ModulosNavComponent } from '../../components/modulos-nav/modulos-nav.component';
 import { CepModel } from '../../models/cep.model';
 import { ConsultaApiError } from '../../models/consulta-api-error.model';
 import { Feriado } from '../../models/feriado.model';
@@ -14,7 +14,7 @@ import { IbgeService } from '../../services/ibge.service';
 
 @Component({
   selector: 'app-portal-consultas-page',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ConsultaCnpjPageComponent],
+  imports: [CommonModule, ReactiveFormsModule, ModulosNavComponent, ConsultaCnpjPageComponent],
   templateUrl: './portal-consultas-page.component.html',
   styleUrl: './portal-consultas-page.component.scss'
 })

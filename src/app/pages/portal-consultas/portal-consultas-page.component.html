@@ -9,6 +9,8 @@
     <div class="hero-stamp" aria-hidden="true"><span>03</span><small>fontes<br />públicas</small></div>
   </section>
 
+  <app-modulos-nav />
+
   <div class="portal-scroll">
     <section class="cnpj-feature container-fluid px-4 px-lg-5" aria-labelledby="cnpj-feature-title">
     <div class="cnpj-feature-heading">
@@ -18,7 +20,7 @@
       </div>
       <span class="cnpj-feature-index">01</span>
     </div>
-    <app-consulta-cnpj-page />
+    <app-consulta-cnpj-page [mostrarMenu]="false" />
     </section>
 
     <section class="container-fluid px-4 px-lg-5 content-grid">
@@ -82,10 +84,6 @@
       <div class="footer-contact">
         <span class="footer-kicker">Entre em contato</span>
         <a href="mailto:t_acsantana@trf5.jus.br">t_acsantana@trf5.jus.br <span aria-hidden="true">↗</span></a>
-      </div>
-      <div class="footer-links">
-        <span>Dados fornecidos pela BrasilAPI</span>
-        <a routerLink="/cnpj">Consulta empresarial <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </footer>

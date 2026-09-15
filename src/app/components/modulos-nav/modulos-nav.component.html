@@ -1,0 +1,14 @@
+<nav class="sub-nav" aria-label="Navegação entre módulos">
+  <div class="sub-nav-links">
+    <span class="sub-nav-label">Módulos</span>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+      ← Portal Geral
+    </a>
+    <a routerLink="/sgt" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
+      Tabelas SGT / CNJ
+    </a>
+  </div>
+  <div class="sub-nav-actions">
+    <ng-content />
+  </div>
+</nav>
